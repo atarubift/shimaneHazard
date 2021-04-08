@@ -7,8 +7,8 @@ https://atarubift.github.io/shimaneHazard/ <br>
 https://github.com/RubyCamp/rc2021sp_g2
 
 ## 技術
-Ruby
-DXopal
+- Ruby
+- DXopal
 
 ## 操作
 移動：矢印キー<br>
