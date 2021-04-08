@@ -2,7 +2,7 @@
 ## 概要
 Ruby Camp 2021 で自分たちがdxrubyを用いて開発したゲームの完全Web版<br>
 ここから遊べます<br>
-https://atarubift.github.io/shimaneHazard/
+https://atarubift.github.io/shimaneHazard/ <br>
 本家はこちら<br>
 https://github.com/RubyCamp/rc2021sp_g2
 
