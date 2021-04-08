@@ -91,6 +91,47 @@ class Ways
   end
 end
 
+class Cloud < Sprite
+  def initialize
+    @cl_sp = 8
+    cl_img = Image[:kumo]
+    cl_img.set_color_key(C_GREEN)
+    x = 800
+    y = 15
+    super(x, y, cl_img)
+  end
+
+  def update
+    self.x -= @cl_sp
+    if self.x + 60 < 0
+      self.vanish
+    end
+  end
+end
+
+class Clouds
+  MAX_CLOUD = 4
+  
+  def initialize
+    @clouds = []
+  end
+
+  def update
+    Sprite.update(@clouds)
+    Sprite.clean(@clouds)
+
+    (MAX_CLOUD - @clouds.size).times do
+      if rand(1..100) > 80
+        @clouds << Cloud.new
+      end
+    end
+  end
+
+  def draw
+    Sprite.draw(@clouds)
+  end
+end
+
 class Player < Sprite
   def initialize
     @pl_img = Image[:player]
@@ -278,6 +319,7 @@ class Game
     @plyer = Player.new
     @enemies = Enemies.new
     @bullets = Bullets.new
+    @clouds = Clouds.new
   end
 
   def run
@@ -307,6 +349,8 @@ class Game
         @plyer.draw
         @bullets.udpate(@enemies.getter, @ways.getter, @plyer.x, @plyer.y)
         @bullets.draw
+        @clouds.update
+        @clouds.draw
         if GAME_INFO[:score] == 10
           GAME_INFO[:scene] = :clear
         elsif GAME_INFO[:life] == 0 || @plyer.getFlag == 1
