@@ -36,6 +36,9 @@ class Way < Sprite
       self.vanish
     end
   end
+
+  def ene_obs
+  end
 end
 
 class Ways
@@ -52,7 +55,8 @@ class Ways
     @cnt_t_obs = 0
   end
 
-  def update
+  def update(enemies)
+    Sprite.check(@obstacle, enemies, shot=:ene_obs, hit=:obs_ene)
     Sprite.update(@ways)
     Sprite.clean(@ways)
     Sprite.update(@obstacle)
@@ -155,6 +159,111 @@ class Player < Sprite
   end
 end
 
+class Enemy < Sprite
+  def initialize(x, y)
+    @ene_sp = 5
+    ene_img = Image[:enemy]
+    ene_img.set_color_key(C_WHITE)
+    super(x, y, ene_img)
+  end
+
+  def update
+    self.x -= @ene_sp
+    if self.x + 45 <= 0
+      self.vanish
+    end
+  end
+
+  def hit
+    self.vanish
+    GAME_INFO[:score] += 1
+  end
+
+  def shot
+    self.vanish
+    GAME_INFO[:life] -= 1
+  end
+
+  def obs_ene
+    self.vanish
+  end
+end
+
+class Enemies
+  attr_reader :enemies
+  MAX_ENEMY = 5
+
+  def initialize
+    @enemies = []
+    @enemyPlace = [330, 430]
+  end
+
+  def update(plyer)
+    Sprite.update(@enemies)
+    Sprite.clean(@enemies)
+    Sprite.check(@enemies, plyer)
+
+    (MAX_ENEMY - @enemies.size).times do
+      if (rand(1..100)) > 99
+        @enemies << Enemy.new(800, @enemyPlace[rand(0..1)])
+      end
+    end
+  end
+
+  def draw
+    Sprite.draw(@enemies)
+  end
+
+  def getter
+    @enemies
+  end
+end
+
+class Bullet < Sprite
+  def initialize(x, y)
+    bu_img = Image[:syringe]
+    bu_img.set_color_key(C_BLACK)
+    super(x, y, bu_img)
+    @bu_sp = 5
+  end
+
+  def update
+    self.x += @bu_sp
+    if self.x > 800
+      self.vanish
+    end
+  end
+
+  def shot
+    self.vanish
+  end
+end
+
+class Bullets
+  MAX_BULLET = 5
+  attr_reader :box
+
+  def initialize
+    @box = []
+    @count = 0
+  end
+
+  def udpate(enemies, ways, x, y)
+    Sprite.check(@box, enemies)
+    Sprite.check(@box, ways)
+    Sprite.update(@box)
+    Sprite.clean(@box)
+
+    if Input.key_push?(K_SPACE) && @box.size < MAX_BULLET
+      @box << Bullet.new(x + 100, y + 20)
+    end
+  end
+
+  def draw
+    Sprite.draw(@box)
+  end
+end
+
 class Game 
   def initialize
     reset
@@ -167,6 +276,8 @@ class Game
     @font = Font.new(32)
     @ways = Ways.new
     @plyer = Player.new
+    @enemies = Enemies.new
+    @bullets = Bullets.new
   end
 
   def run
@@ -181,15 +292,24 @@ class Game
         end
       when :playing
         Window.draw(0, 150, Image[:bg])
+        Window.draw_font(600, 20, "SCORE: #{ GAME_INFO[:score] }", @font)
+        Window.draw_font(100, 20, "LIFE: #{ "●" * GAME_INFO[:life] }", @font)
         Sprite.check(@plyer, @ways.ways, shot=:shot_way)
         Sprite.check(@plyer, @ways.obstacle, shot=:shot_obs)
-        # Sprite.check(@plyer, @enemies)
-        @ways.update
+        # Sprite.check(@enemies, @ways.obstacle, shot=:obs_ene)
+        # Sprite.check(@bullets, @ways.obstacle, shot=:bullt_way)
+        @enemies.update(@plyer)
+        @enemies.draw
+        @ways.update(@enemies.getter)
         @ways.draw
         @plyer.update
         @plyer.jump
         @plyer.draw
-        if Input.key_push?(K_SPACE)
+        @bullets.udpate(@enemies.getter, @ways.getter, @plyer.x, @plyer.y)
+        @bullets.draw
+        if GAME_INFO[:score] == 10
+          GAME_INFO[:scene] = :clear
+        elsif GAME_INFO[:life] == 0 || @plyer.getFlag == 1
           GAME_INFO[:scene] = :game_over
         end
       when :game_over
