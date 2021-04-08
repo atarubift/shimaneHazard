@@ -320,6 +320,8 @@ class Game
     @enemies = Enemies.new
     @bullets = Bullets.new
     @clouds = Clouds.new
+    @wl_img = Image[:virous]
+    @wl_img.set_color_key(C_WHITE)
   end
 
   def run
@@ -351,7 +353,10 @@ class Game
         @bullets.draw
         @clouds.update
         @clouds.draw
-        if GAME_INFO[:score] == 10
+        10.times do |i|
+          Window.draw(0, 60 * i, @wl_img)
+        end
+        if GAME_INFO[:score] == 1000
           GAME_INFO[:scene] = :clear
         elsif GAME_INFO[:life] == 0 || @plyer.getFlag == 1
           GAME_INFO[:scene] = :game_over
