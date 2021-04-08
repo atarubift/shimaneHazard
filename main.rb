@@ -313,14 +313,20 @@ class Game
           GAME_INFO[:scene] = :game_over
         end
       when :game_over
-        Window.draw_font(500, 300, "go", @font)
+        Window.draw(100, 100, Image[:ed2])
+        Window.draw_font(500, 300, "Game Over", @font)
+        Window.draw_font(500, 400, "Result: #{ GAME_INFO[:score] }", @font)
+        Window.draw_font(500, 500, "RETRY: SPACE", @font)
         if Input.key_push?(K_SPACE)
-          GAME_INFO[:scene] = :clear
+          reset
         end
       when :clear
-        Window.draw_font(500, 300, "cl", @font)
+        cl_img = Image[:ed1]
+        cl_img.set_color_key(C_WHITE)
+        Window.draw(100, 100, cl_img)
+        Window.draw_font(500, 300, "Clear!", @font)
+        Window.draw_font(500, 400, "Retry: SPACE", @font)
         if Input.key_push?(K_SPACE)
-          GAME_INFO[:scene] = :title
           reset
         end
       end
